@@ -1,3 +1,6 @@
+# TUWIEN - WS2020 CV: Task3 - Scene recognition using Bag of Visual Words
+# *********+++++++++*******++++Group_9-11_11
+
 from typing import List
 from sklearn.metrics import pairwise_distances
 import cv2
@@ -19,21 +22,20 @@ def extract_dsift(images: List[np.ndarray], stepsize: int, num_samples: int = No
     tic = time.perf_counter()
 
     # student_code start
-    if num_samples == None:
-        num_samples = 100
 
-    # TODO do we need to init sift for each image new?
     sift = cv2.SIFT_create()
 
 
     all_descriptors = []
     for image in tqdm(images):
-        height,width,channels = np.shape(image)
+        height,width = np.shape(image)
         keypoints = []
+        #get a list of keypoints on a fixed grid
         for x in range(0,width,stepsize):
             for y in range(0,height,stepsize):
-                keypoints.append(cv2.KeyPoint(x,y,1))
-        selected_keypoints = random.sample(keypoints,num_samples)
+                keypoints.append(cv2.KeyPoint(x,y,stepsize))
+        #randomly select some keypoints
+        selected_keypoints = keypoints if num_samples == None else random.sample(keypoints,num_samples)
 
         keypoints, descriptors = sift.compute(image,selected_keypoints)
         all_descriptors.append(descriptors)
@@ -59,35 +61,22 @@ def count_visual_words(dense_feat: List[np.ndarray], centroids: List[np.ndarray]
     tic = time.perf_counter()
 
     # student_code start
+
+    # I don't understand what is step_size for, this solution misses it. 
+    step_size = 2
+
     histograms = []
     bin_edges = []
 
     for image in tqdm(dense_feat):
         clusters = []
         for sample in image:
-            distances = []
-            for centroid in centroids:
-                # I had to do this stupid loop, because centroids can not be turned into
-                # nd-array, since max ndarray dimensions is 32.
-                # There probably is better solution
-                # so instead of checking pairwise distance of matrices, I check the pairwise
-                # distance of each vector 
-                # ("vector" means either 128-dimensions 128-dimensional feature) 
-                # with each centroid (128-dim as well) and make list of distances 
-                s = sample.reshape(1, -1)
-                c = centroid.reshape(1, -1)
-                distance = pairwise_distances(
-                    s, c, metric="euclidean"
-                )
-                distances.append(distance)
+            distances = pairwise_distances(sample.reshape(1, -1),centroids,metric="euclidean")
             closest_centroid_id = np.argmin(distances)
-            # print("Smallest distance to cluster nr.", closest_centroid_id)
             clusters.append(closest_centroid_id)
-        histogram, bin_edge = np.histogram(clusters, bins=len(centroids)+1, range=(0,len(centroids)+1))
+        histogram, bin_edge = np.histogram(clusters, bins=len(centroids), range=(0,len(centroids)-1))
         histograms.append(histogram)
         bin_edges.append(bin_edge)
-        #break here if you dont want it to run too long
-        #break
     # student_code end
 
     toc = time.perf_counter()

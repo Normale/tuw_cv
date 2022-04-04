@@ -34,11 +34,11 @@ def plot_activation_maps(model, image_sample,
             conv_layers.append(model_children[i])
         elif type(model_children[i]) == nn.Sequential:
             for j in range(len(model_children[i])):
-                for child in model_children[i][j].children():
-                    if type(child) == nn.Conv2d:
-                        counter += 1
-                        filters.append(child.weight)
-                        conv_layers.append(child)
+                child = model_children[i][j]
+                if type(child) == nn.Conv2d:
+                    counter += 1
+                    filters.append(child.weight)
+                    conv_layers.append(child)
     print(f"Total convolutional layers: {counter}")
 
     # pass the image through all the layers

@@ -25,48 +25,49 @@ class MaskClassifier(nn.Module):
         self.name = name
         
         self.layers = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=0),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(32) if batch_norm else nn.Identity(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(p=self.dropout),
 
-            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=0),
             nn.ReLU(inplace=True),
-            nn.BatchNorm2d(64) if batch_norm else nn.Identity(),
+            nn.BatchNorm2d(32) if batch_norm else nn.Identity(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(p=self.dropout),
 
-            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(128) if batch_norm else nn.Identity(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(p=self.dropout),
+            # nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+            # nn.ReLU(inplace=True),
+            # nn.BatchNorm2d(128) if batch_norm else nn.Identity(),
+            # nn.MaxPool2d(kernel_size=2, stride=2),
+            # nn.Dropout(p=self.dropout),
 
-            nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(128) if batch_norm else nn.Identity(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(p=self.dropout),
+            # nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1),
+            # nn.ReLU(inplace=True),
+            # nn.BatchNorm2d(128) if batch_norm else nn.Identity(),
+            # nn.MaxPool2d(kernel_size=2, stride=2),
+            # nn.Dropout(p=self.dropout),
         )
 
         self.linear_layers = nn.Sequential(
-            nn.Linear(4*4*128, 512), 
+            nn.Linear(32*14*14,1),
+            # nn.Linear(4*4*128, 512), 
             # in case you wonder wtf is (4*4*128) :
             # 4 * 4 is image after 4 MaxPool2d with kernel_size_2
             # it was initially 64, after first its 32x32
             # second: 16x16, third 8x8, fourth 4x4
             # 128 is output of convolution (we are convolving from 3 -> 32 -> 64 -> 128)
             # my understanding might be wrong, but it works ¯\_(ツ)_/¯
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=self.dropout),
-            nn.Linear(512, 256),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=self.dropout),
-            nn.Linear(256,10),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=self.dropout),
-            nn.Linear(10,1),
+            # nn.ReLU(inplace=True),
+            # nn.Dropout(p=self.dropout),
+            # nn.Linear(512, 256),
+            # nn.ReLU(inplace=True),
+            # nn.Dropout(p=self.dropout),
+            # nn.Linear(256,10),
+            # nn.ReLU(inplace=True),
+            # nn.Dropout(p=self.dropout),
+            # nn.Linear(10,1),
             nn.Sigmoid()
             # Going further, output sizes dont really matter,
             # but the end should be positive between 0-1,
@@ -82,7 +83,7 @@ class MaskClassifier(nn.Module):
         # student code start
         # Convolution & Pool Layers
         x = self.layers(x)
-        x = x.view(-1, 4*4*128)
+        x = x.view(-1, 32*14*14)
         x = self.linear_layers(x)
         # print(x)
         # student code end

@@ -61,7 +61,8 @@ class DataModule:
                 transforms.Resize((self.img_size, self.img_size)),
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomAffine(45),
-                transforms.RandomPerspective(distortion_scale=0.6, p=1.0),
+                #transforms.RandomPerspective(distortion_scale=0.6, p=1.0),
+                transforms.ColorJitter(brightness=.5, hue=.3),
                 transforms.ToTensor()])
 
         # student code end

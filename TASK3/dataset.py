@@ -12,7 +12,7 @@ class SceneDataset():
     labels = []         # list of labels of images
     class_names = []    # list with of class names (folder names)
 
-    def __init__(self, path: str, maxDataPerLabel:int = None, resize:bool = False):
+    def __init__(self, path: str, resize:bool = False):
         # Loop through all subfolders within the given 'path', get all images per folder,
         # save the images in gray scale and normalize the image values between 0 and 1.
         # The label of an image is the current subfolder (eg. value between 0-9 when using 10 classes)
@@ -24,16 +24,15 @@ class SceneDataset():
         labels = []
         dirs = []
         for (dirpath, dirnames, filenames) in os.walk(path):
-            for label, classname in enumerate(dirnames):
+            for label, classname in enumerate(sorted(dirnames)):
                 dirs.append(classname)
                 for (dirpath, dirnames, filenames) in os.walk(path+os.sep+classname):
-                    for i, imgName in enumerate(filenames):
-                        if(maxDataPerLabel == None or i < maxDataPerLabel):
-                            img = cv2.imread(dirpath+os.sep+imgName)
-                            if resize:
-                                img = cv2.resize(img,(100,100))
-                            img_data.append(img)
-                            labels.append(label)
+                    for i, imgName in enumerate(sorted(filenames)):
+                        img = cv2.imread(dirpath+os.sep+imgName,cv2.IMREAD_GRAYSCALE)
+                        if resize:
+                            img = cv2.resize(img,(100,100))
+                        img_data.append(img)
+                        labels.append(label)
 
         # student_code end
 
